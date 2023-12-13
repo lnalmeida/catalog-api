@@ -18,11 +18,11 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Category>> GetAll()
+        public async Task<ActionResult<IEnumerable<Category>>> GetAllAsync()
         {
             try
             {
-                var categories = _context.Categories.Take(10).AsNoTracking().ToList();
+                var categories = await _context.Categories.Take(10).AsNoTracking().ToListAsync();
                 if(categories is null) 
                 {
                     return NotFound("No there registered categpries");
@@ -37,11 +37,11 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet("products/{categoryId}")]
-        public ActionResult<IEnumerable<Category>> GetCategoryProducts(Guid categoryId)
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategoryProductsAsync(Guid categoryId)
         {
             try
             {
-                var categoryProducts = _context.Categories.AsNoTracking().Include(p => p.Products).Where(p => p.CategoryId == categoryId).ToList();
+                var categoryProducts = await _context.Categories.AsNoTracking().Include(p => p.Products).Where(p => p.CategoryId == categoryId).ToListAsync();
                 if (categoryProducts is null)
                 {
                     return NotFound("Category not found.");
@@ -56,11 +56,11 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet("{id}", Name ="GetCategory")]
-        public ActionResult<Category> GetById(Guid id) 
+        public async Task<ActionResult<Category>> GetByIdAsync(Guid id) 
         {
             try
             {
-                var category = _context.Categories.AsNoTracking().FirstOrDefault(c => c.CategoryId == id);
+                var category = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.CategoryId == id);
                 if(category is null)
                 {
                     return NotFound("Category not found.");
@@ -76,7 +76,7 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(Category category)
+        public async Task<ActionResult> PostAsync(Category category)
         {
             try
             {
@@ -84,8 +84,8 @@ namespace CatalogAPI.Controllers
                 {
                     return BadRequest();
                 }
-                _context.Categories.Add(category);
-                _context.SaveChanges();
+                await _context.Categories.AddAsync(category);
+                await _context.SaveChangesAsync();
                 return new CreatedAtRouteResult("GetCategory", new { id = category.CategoryId }, category);
             }
             catch (Exception ex)
@@ -95,18 +95,18 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<Category> Put(Guid id,  Category category) 
+        public async Task<ActionResult<Category>> PutAsync(Guid id,  Category category) 
         {
             try
             {
-                var findedCategory = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
+                var findedCategory = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
                 if(findedCategory is null) 
                 {
                     return NotFound("Category not found.");
                 }
 
                 _context.Entry(findedCategory).CurrentValues.SetValues(category);
-                _context.SaveChanges();
+                 await _context.SaveChangesAsync();
                 return Ok(findedCategory);
             }
             catch(Exception ex) 
@@ -116,17 +116,17 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete(Guid id)
+        public async Task<ActionResult> DeleteAsync(Guid id)
         {
             try
             {
-                var findedCategory = _context.Categories.FirstOrDefault(c => c.CategoryId == id);
+                var findedCategory = await _context.Categories.FirstOrDefaultAsync(c => c.CategoryId == id);
                 if(findedCategory is null)
                 {
                     return NotFound("Category not found.");
                 }
                 _context.Categories.Remove(findedCategory);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok(findedCategory);
             }
             catch( Exception ex) 

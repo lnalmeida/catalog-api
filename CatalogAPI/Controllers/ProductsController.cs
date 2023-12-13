@@ -19,11 +19,11 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAll()
+        public async Task<ActionResult<IEnumerable<Product>>> GetAllAsync()
         {
             try
             {
-                var products = _context.Products.Take(10).AsNoTracking().ToList();
+                var products = await _context.Products.Take(10).AsNoTracking().ToListAsync();
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
@@ -38,11 +38,11 @@ namespace CatalogAPI.Controllers
 
         [HttpGet("{id}", Name ="GetProduct")]
 
-        public ActionResult<Product> Get(Guid id) 
+        public async Task<ActionResult<Product>> GetAsync(Guid id) 
         {
             try
             {
-                var Product = _context.Products.AsNoTracking().FirstOrDefault(p => p.ProductId == id);
+                var Product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductId == id);
                 if (Product == null)
                 {
                     return NotFound("Product not found");
@@ -56,7 +56,7 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post(Product product)
+        public async Task<ActionResult> PostAsync(Product product)
         {
             try
             {
@@ -65,8 +65,8 @@ namespace CatalogAPI.Controllers
                     return BadRequest();
                 };
 
-                _context.Products.Add(product);
-                _context.SaveChanges();
+                await _context.Products.AddAsync(product);
+                await _context.SaveChangesAsync();
                 return new CreatedAtRouteResult("GetProduct", new { id = product.ProductId }, product );
             }
             catch (Exception ex)
@@ -76,17 +76,17 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult Put(Guid id, Product product)
+        public async Task<ActionResult> PutAsync(Guid id, Product product)
         {
             try
             {
-                var findedProduct = _context.Products.FirstOrDefault(p => p.ProductId == id);
+                var findedProduct = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == id);
                 if (findedProduct == null)
                 {
                     return NotFound("Product not found.");
                 }
                 _context.Entry(findedProduct).CurrentValues.SetValues(product);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return Ok(findedProduct); 
             }
             catch (Exception ex)
@@ -96,17 +96,17 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpDelete("{id}")]   
-        public ActionResult Delete(Guid id)
+        public async Task<ActionResult> DeleteAsync(Guid id)
         {
             try
             {
-                var product = _context.Products.FirstOrDefault(x => x.ProductId == id);
+                var product = await _context.Products.FirstOrDefaultAsync(x => x.ProductId == id);
                 if (product == null)
                 {
                     return NotFound("Product not found");
                 }
                 _context.Products.Remove(product);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return NoContent();
             }
             catch (Exception ex)
