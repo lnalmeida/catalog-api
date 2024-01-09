@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CatalogAPI.Domain.DTO;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -7,6 +8,18 @@ namespace CatalogAPI.Domain
     [Table("Products")]
     public class Product
     {
+        public Product() {}
+
+        public Product(string? name, string description, decimal price, float stock, DateTime? created, Guid categoryId)
+        {
+            Name = name;
+            Description = description;
+            Price = price;
+            Stock = stock;
+            Created = created;
+            CategoryId = categoryId;
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid ProductId { get; set; }  = Guid.NewGuid();
