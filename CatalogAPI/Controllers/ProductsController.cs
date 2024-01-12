@@ -1,5 +1,8 @@
 ﻿using CatalogAPI.Context;
 using CatalogAPI.Domain;
+using CatalogAPI.Domain.DTO;
+using CatalogAPI.Repository;
+using CatalogAPI.Repository.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,19 +14,19 @@ namespace CatalogAPI.Controllers
     public class ProductsController : ControllerBase
     {
 
-        private readonly AppDbContext _context;
+        private readonly IProductRepository<ProductDTO> _productRepository;
 
-        public ProductsController(AppDbContext context)
+        public ProductsController(IProductRepository<ProductDTO> productRepository)
         {
-            _context = context;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetAllAsync()
         {
             try
             {
-                var products = await _context.Products.Take(10).AsNoTracking().ToListAsync();
+                var products = await _productRepository.GetAllAsync();
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
@@ -38,11 +41,11 @@ namespace CatalogAPI.Controllers
 
         [HttpGet("{id}", Name ="GetProduct")]
 
-        public async Task<ActionResult<Product>> GetAsync(Guid id) 
+        public async Task<ActionResult<Product>> GetAsync(string id) 
         {
             try
             {
-                var Product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.ProductId == id);
+                var Product = await _productRepository.GetAsync(id);
                 if (Product == null)
                 {
                     return NotFound("Product not found");
@@ -56,18 +59,17 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Product product)
+        public async Task<ActionResult> PostAsync(ProductDTO productDTO)
         {
             try
             {
-                if(product == null)
+                if(productDTO == null)
                 {
                     return BadRequest();
                 };
 
-                await _context.Products.AddAsync(product);
-                await _context.SaveChangesAsync();
-                return new CreatedAtRouteResult("GetProduct", new { id = product.ProductId }, product );
+                await _productRepository.CreateAsync(productDTO);
+                return new CreatedAtRouteResult("GetProduct", new { id = productDTO.ProductId }, productDTO );
             }
             catch (Exception ex)
             {
@@ -76,18 +78,12 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutAsync(Guid id, Product product)
+        public async Task<ActionResult> PutAsync(Guid id, ProductDTO productDTO)
         {
             try
             {
-                var findedProduct = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == id);
-                if (findedProduct == null)
-                {
-                    return NotFound("Product not found.");
-                }
-                _context.Entry(findedProduct).CurrentValues.SetValues(product);
-                await _context.SaveChangesAsync();
-                return Ok(findedProduct); 
+                await _productRepository.UpdateAsync(productDTO);
+                return Ok(productDTO); 
             }
             catch (Exception ex)
             {
@@ -96,17 +92,11 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpDelete("{id}")]   
-        public async Task<ActionResult> DeleteAsync(Guid id)
+        public async Task<ActionResult> DeleteAsync(string id)
         {
             try
             {
-                var product = await _context.Products.FirstOrDefaultAsync(x => x.ProductId == id);
-                if (product == null)
-                {
-                    return NotFound("Product not found");
-                }
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
+                await _productRepository.DeleteAsync(id);
                 return NoContent();
             }
             catch (Exception ex)

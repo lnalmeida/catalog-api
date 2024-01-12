@@ -21,7 +21,7 @@ namespace CatalogAPI.Repository
         {
             try
             {
-                var products = await _context.Products.ToListAsync();
+                var products = await _context.Products.AsNoTracking().ToListAsync();
                 if (products != null)
                 {
                     var productsDTO = products.Select(p => ProductMapper.MapToProductDTO(p));
@@ -40,7 +40,8 @@ namespace CatalogAPI.Repository
         {
             try
             {
-                var existingProduct = await _context.Products.FindAsync(id);
+                var parsedProductID = Guid.Parse(id);
+                var existingProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.ProductId == parsedProductID);
                 Product? productDTO = existingProduct ?? null;
                 return ProductMapper.MapToProductDTO(productDTO);
             }
@@ -80,7 +81,8 @@ namespace CatalogAPI.Repository
         {
             try
             {
-                var existingProduct = await _context.Products.FindAsync(id);
+                var parsedId = Guid.Parse(id);
+                var existingProduct = await _context.Products.FindAsync(parsedId);
                 
                 if (existingProduct != null)
                 {

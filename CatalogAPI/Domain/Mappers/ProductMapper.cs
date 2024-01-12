@@ -19,9 +19,6 @@ public static class ProductMapper
             Price = product.Price,
             Stock = product.Stock,
             Created = (DateTime)product.Created,
-            CategoryId = product.CategoryId
-
-            // Mapear outras propriedades, se necessário
         };
     }
 
@@ -41,8 +38,6 @@ public static class ProductMapper
             Stock = productDTO.Stock,
             Created = productDTO.Created,
             CategoryId = productDTO.CategoryId
-
-            // Mapear outras propriedades, se necessário
         };
     }
 }

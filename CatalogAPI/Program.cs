@@ -1,4 +1,8 @@
 using CatalogAPI.Context;
+using CatalogAPI.Domain;
+using CatalogAPI.Domain.DTO;
+using CatalogAPI.Repository;
+using CatalogAPI.Repository.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -20,6 +24,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
+builder.Services.AddScoped<IProductRepository<ProductDTO>, ProductRepository>();
 
 var app = builder.Build();
 
