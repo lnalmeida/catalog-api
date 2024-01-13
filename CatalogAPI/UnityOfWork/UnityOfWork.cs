@@ -27,7 +27,7 @@ namespace CatalogAPI.UnityOfWork
         {
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             } catch (Exception ex)
             {
                 throw new Exception($"An error ocurred on save changes. Details: {ex.Message}");

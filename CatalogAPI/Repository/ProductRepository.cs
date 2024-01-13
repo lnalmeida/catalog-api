@@ -17,7 +17,7 @@ namespace CatalogAPI.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>?> GetAllAsync()
         {
             try
             {
@@ -31,11 +31,11 @@ namespace CatalogAPI.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error ocurred on get products. Details: {ex.Message.ToString()}");
+                throw new Exception($"An error ocurred on get products. Details: {ex.Message}");
             }
         }
 
-        public async Task<Product> GetAsync(string id)
+        public async Task<Product?> GetAsync(string id)
         {
             try
             {
@@ -50,11 +50,11 @@ namespace CatalogAPI.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception($"An error ocurred on get the product. Details: {ex.Message.ToString()}");
+                throw new Exception($"An error ocurred on get the product. Details: {ex.Message}");
             }
         }
 
-        public async Task<IEnumerable<Product>> GetByCategory(string categoryId)
+        public async Task<IEnumerable<Product>?> GetByCategory(string categoryId)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace CatalogAPI.Repository
                 return null;
             } catch (Exception ex)
             {
-                throw new Exception($"An error ocurred on get categoryId {categoryId} product. Details: {ex.Message.ToString()}");
+                throw new Exception($"An error ocurred on get categoryId {categoryId} product. Details: {ex.Message}");
             }
         }
 
@@ -80,7 +80,7 @@ namespace CatalogAPI.Repository
                return entity;
             } catch (Exception ex)
             {
-                throw new Exception($"An error ocurred on create a new product. Message: {ex.Message.ToString()}");
+                throw new Exception($"An error ocurred on create a new product. Message: {ex.Message}");
             }
         }
 
@@ -98,11 +98,11 @@ namespace CatalogAPI.Repository
                 
             } catch (Exception ex)
             {
-                throw new Exception($"An error ocurred on delete a product. Details: {ex.Message.ToString()}");
+                throw new Exception($"An error ocurred on delete a product. Details: {ex.Message}");
             }
         }
 
-        public async Task<Product> UpdateAsync(Product entity)
+        public async Task<Product?> UpdateAsync(Product entity)
         {
             try
             {
@@ -117,7 +117,7 @@ namespace CatalogAPI.Repository
 
             } catch (Exception ex)
             {
-                throw new Exception($"An error ocurred on update the product. Details: {ex.Message.ToString()}");
+                throw new Exception($"An error ocurred on update the product. Details: {ex.Message}");
             }
         }
     }

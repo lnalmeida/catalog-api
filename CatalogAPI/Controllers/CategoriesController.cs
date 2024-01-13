@@ -102,8 +102,8 @@ namespace CatalogAPI.Controllers
             try
             {
                 var updatedCategory = await _unityOfWork.CategoryRepository.UpdateAsync(entity);
-                _unityOfWork.Commit();
                 if (updatedCategory is null) return NotFound("Category not found");
+                _unityOfWork.Commit();
                 return Ok(entity);
             }
             catch(Exception ex) 

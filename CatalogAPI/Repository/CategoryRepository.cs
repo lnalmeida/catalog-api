@@ -18,7 +18,7 @@ public class CategoryRepository : ICategoryRepository<Category>
     {
         _context = context;
     }
-    public async  Task<IEnumerable<Category>> GetAllAsync()
+    public async  Task<IEnumerable<Category?>?> GetAllAsync()
     {
         try
         {
@@ -34,7 +34,7 @@ public class CategoryRepository : ICategoryRepository<Category>
         }
     }
 
-    public async Task<Category> GetAsync(string id)
+    public async Task<Category?> GetAsync(string id)
     {
         try
         {
@@ -52,7 +52,7 @@ public class CategoryRepository : ICategoryRepository<Category>
         }
     }
 
-    public async Task<IEnumerable<Category>> GetCategoryProducts(string categoryId)
+    public async Task<IEnumerable<Category?>?> GetCategoryProducts(string categoryId)
     {
         try
         {
@@ -76,7 +76,7 @@ public class CategoryRepository : ICategoryRepository<Category>
 
     }
 
-    public async Task<Category> CreateAsync(Category entity)
+    public async Task<Category?> CreateAsync(Category entity)
     {
         try
         {
@@ -93,7 +93,7 @@ public class CategoryRepository : ICategoryRepository<Category>
         }
     }
 
-    public async Task<Category> UpdateAsync(Category entity)
+    public async Task<Category?> UpdateAsync(Category entity)
     {
         try
         {
@@ -101,7 +101,7 @@ public class CategoryRepository : ICategoryRepository<Category>
 
             if (existingCategory != null) 
             {
-                 _context.Entry(existingCategory).CurrentValues.SetValues(entity);
+                _context.Entry(existingCategory).CurrentValues.SetValues(entity);
                 return entity;
             }
 
