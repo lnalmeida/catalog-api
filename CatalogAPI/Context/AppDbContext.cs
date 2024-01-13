@@ -1,4 +1,5 @@
 ﻿using CatalogAPI.Domain;
+using CatalogAPI.Domain.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace CatalogAPI.Context

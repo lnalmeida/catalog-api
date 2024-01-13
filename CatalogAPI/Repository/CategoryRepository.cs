@@ -1,4 +1,5 @@
 ﻿using CatalogAPI.Context;
+using CatalogAPI.Domain;
 using CatalogAPI.Domain.DTO;
 using CatalogAPI.Domain.Mappers;
 using CatalogAPI.Repository.Interfaces;
@@ -9,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CatalogAPI.Repository;
 
-public class CategoryRepository : ICategoryRepository<CategoryDTO>
+public class CategoryRepository : ICategoryRepository<Category>
 {
     private readonly AppDbContext _context;
 
@@ -17,15 +18,14 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
     {
         _context = context;
     }
-    public async  Task<IEnumerable<CategoryDTO>> GetAllAsync()
+    public async  Task<IEnumerable<Category>> GetAllAsync()
     {
         try
         {
             var categories = await _context.Categories.AsNoTracking().ToListAsync();
             if(categories != null)
             {
-                var categoriesDTO = categories.Select(c => CategoryMapper.MapToCategoryDTO(c));
-                return categoriesDTO;
+                return categories;
             }
             return null;
         } catch (Exception ex)
@@ -34,7 +34,7 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
         }
     }
 
-    public async Task<CategoryDTO> GetAsync(string id)
+    public async Task<Category> GetAsync(string id)
     {
         try
         {
@@ -42,7 +42,7 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
             var existingCategory = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.CategoryId == parsedCategoryId);
             if (existingCategory != null)
             {
-                return CategoryMapper.MapToCategoryDTO(existingCategory);
+                return existingCategory;
             }
             return null;
 
@@ -52,7 +52,7 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
         }
     }
 
-    public async Task<IEnumerable<CategoryDTO>> GetCategoryProducts(string categoryId)
+    public async Task<IEnumerable<Category>> GetCategoryProducts(string categoryId)
     {
         try
         {
@@ -64,7 +64,7 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
                 .ToListAsync();  
             if (categoryProducts != null)
             {
-                return categoryProducts.Select(c =>  CategoryMapper.MapToCategoryDTO(c));
+                return categoryProducts;
             }
 
             return null;
@@ -76,7 +76,7 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
 
     }
 
-    public async Task<CategoryDTO> CreateAsync(CategoryDTO entity)
+    public async Task<Category> CreateAsync(Category entity)
     {
         try
         {
@@ -93,7 +93,7 @@ public class CategoryRepository : ICategoryRepository<CategoryDTO>
         }
     }
 
-    public async Task<CategoryDTO> UpdateAsync(CategoryDTO entity)
+    public async Task<Category> UpdateAsync(Category entity)
     {
         try
         {

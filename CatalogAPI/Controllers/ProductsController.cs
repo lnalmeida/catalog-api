@@ -3,6 +3,7 @@ using CatalogAPI.Domain;
 using CatalogAPI.Domain.DTO;
 using CatalogAPI.Repository;
 using CatalogAPI.Repository.Interfaces;
+using CatalogAPI.UnityOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,11 @@ namespace CatalogAPI.Controllers
     public class ProductsController : ControllerBase
     {
 
-        private readonly IProductRepository<ProductDTO> _productRepository;
+        private readonly IUnityOfWork _unityOfWork;
 
-        public ProductsController(IProductRepository<ProductDTO> productRepository)
+        public ProductsController(IUnityOfWork unityOfWork)
         {
-            _productRepository = productRepository;
+            _unityOfWork = unityOfWork;
         }
 
         [HttpGet]
@@ -26,7 +27,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var products = await _productRepository.GetAllAsync();
+                var products = await _unityOfWork.ProductRepository.GetAllAsync();
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
@@ -45,7 +46,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var Product = await _productRepository.GetAsync(id);
+                var Product = await _unityOfWork.ProductRepository.GetAsync(id);
                 if (Product == null)
                 {
                     return NotFound("Product not found");
@@ -59,17 +60,18 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(ProductDTO productDTO)
+        public async Task<ActionResult> PostAsync(Product product)
         {
             try
             {
-                if(productDTO == null)
+                if(product == null)
                 {
                     return BadRequest();
                 };
 
-                await _productRepository.CreateAsync(productDTO);
-                return new CreatedAtRouteResult("GetProduct", new { id = productDTO.ProductId }, productDTO );
+                await _unityOfWork.ProductRepository.CreateAsync(product);
+                _unityOfWork.Commit();
+                return new CreatedAtRouteResult("GetProduct", new { id = product.ProductId }, product );
             }
             catch (Exception ex)
             {
@@ -78,12 +80,13 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutAsync(Guid id, ProductDTO productDTO)
+        public async Task<ActionResult> PutAsync(Product product)
         {
             try
             {
-                await _productRepository.UpdateAsync(productDTO);
-                return Ok(productDTO); 
+                await _unityOfWork.ProductRepository.UpdateAsync(product);
+                _unityOfWork.Commit();
+                return Ok(product); 
             }
             catch (Exception ex)
             {
@@ -96,7 +99,8 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                await _productRepository.DeleteAsync(id);
+                await _unityOfWork.ProductRepository.DeleteAsync(id);
+                _unityOfWork.Commit();
                 return NoContent();
             }
             catch (Exception ex)

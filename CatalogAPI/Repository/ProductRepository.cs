@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace CatalogAPI.Repository
 {
-    public class ProductRepository : IProductRepository<ProductDTO>
+    public class ProductRepository : IProductRepository<Product>
     {
         private readonly AppDbContext _context;
         public ProductRepository(AppDbContext context)
@@ -17,15 +17,14 @@ namespace CatalogAPI.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsync()
         {
             try
             {
                 var products = await _context.Products.AsNoTracking().ToListAsync();
                 if (products != null)
                 {
-                    var productsDTO = products.Select(p => ProductMapper.MapToProductDTO(p));
-                    return productsDTO;
+                    return products;
                 }
                 return null;
 
@@ -36,14 +35,18 @@ namespace CatalogAPI.Repository
             }
         }
 
-        public async Task<ProductDTO> GetAsync(string id)
+        public async Task<Product> GetAsync(string id)
         {
             try
             {
                 var parsedProductID = Guid.Parse(id);
                 var existingProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.ProductId == parsedProductID);
-                Product? productDTO = existingProduct ?? null;
-                return ProductMapper.MapToProductDTO(productDTO);
+                if (existingProduct != null)
+                {
+                    return existingProduct;
+                }
+
+                return null;               
             }
             catch (Exception ex)
             {
@@ -51,25 +54,29 @@ namespace CatalogAPI.Repository
             }
         }
 
-        public async Task<IEnumerable<ProductDTO>> GetByCategory(string categoryId)
+        public async Task<IEnumerable<Product>> GetByCategory(string categoryId)
         {
             try
             {
                 var categoryIdGuid = Guid.Parse(categoryId);
                 var productsByCategory = await _context.Products.Where(p => p.CategoryId == categoryIdGuid).ToListAsync();
-                List<Product>? products =  productsByCategory ?? null;
-                return products.Select(p => ProductMapper.MapToProductDTO(p));
+                if (productsByCategory != null)
+                {
+                    return productsByCategory;
+                }
+
+                return null;
             } catch (Exception ex)
             {
                 throw new Exception($"An error ocurred on get categoryId {categoryId} product. Details: {ex.Message.ToString()}");
             }
         }
 
-        public async Task<ProductDTO> CreateAsync(ProductDTO entity)
+        public async Task<Product> CreateAsync(Product entity)
         {
             try
             {
-               await _context.Products.AddAsync(ProductMapper.MapToProduct(entity));
+               await _context.Products.AddAsync(entity);
                return entity;
             } catch (Exception ex)
             {
@@ -95,7 +102,7 @@ namespace CatalogAPI.Repository
             }
         }
 
-        public async Task<ProductDTO> UpdateAsync(ProductDTO entity)
+        public async Task<Product> UpdateAsync(Product entity)
         {
             try
             {

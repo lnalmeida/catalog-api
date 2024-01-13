@@ -3,6 +3,7 @@ using CatalogAPI.Domain;
 using CatalogAPI.Domain.DTO;
 using CatalogAPI.Repository;
 using CatalogAPI.Repository.Interfaces;
+using CatalogAPI.UnityOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
@@ -24,7 +25,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
-builder.Services.AddScoped<IProductRepository<ProductDTO>, ProductRepository>();
+builder.Services.AddScoped<IProductRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository<Category>, CategoryRepository>();
+builder.Services.AddScoped<IUnityOfWork, UnityOfWork>();
 
 var app = builder.Build();
 
