@@ -77,6 +77,7 @@ namespace CatalogAPI.Repository
             try
             {
                await _context.Products.AddAsync(entity);
+               await _context.SaveChangesAsync();
                return entity;
             } catch (Exception ex)
             {
@@ -94,6 +95,7 @@ namespace CatalogAPI.Repository
                 if (existingProduct != null)
                 {
                    _context.Remove(existingProduct);
+                   await _context.SaveChangesAsync();
                 }
                 
             } catch (Exception ex)
@@ -110,6 +112,7 @@ namespace CatalogAPI.Repository
                 if (existingProduct != null)
                 {
                     _context.Entry(existingProduct).CurrentValues.SetValues(entity);
+                    await _context.SaveChangesAsync();
                     return entity;
                 }
 

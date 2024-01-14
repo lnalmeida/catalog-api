@@ -1,6 +1,7 @@
 ﻿using CatalogAPI.Context;
 using CatalogAPI.Domain;
 using CatalogAPI.Domain.DTO;
+using CatalogAPI.Repository.Interfaces;
 using CatalogAPI.UnityOfWork;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,11 @@ namespace CatalogAPI.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly IUnityOfWork _unityOfWork;
+        private readonly ICategoryRepository<Category> _categoryRepo;
 
-        public CategoriesController (IUnityOfWork unityOfWork)
+        public CategoriesController (ICategoryRepository<Category> categoryRepo)
         {
-            _unityOfWork = unityOfWork;
+            _categoryRepo = categoryRepo;
         }
 
         [HttpGet]
@@ -24,7 +25,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var categories = await _unityOfWork.CategoryRepository.GetAllAsync();
+                var categories = await _categoryRepo.GetAllAsync();
                 if(categories is null) 
                 {
                     return NotFound("No there registered categpries");
@@ -43,7 +44,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var categoryProducts = await _unityOfWork.CategoryRepository.GetCategoryProducts(categoryId);
+                var categoryProducts = await _categoryRepo.GetCategoryProducts(categoryId);
                 if (categoryProducts is null)
                 {
                     return NotFound("Category not found.");
@@ -62,7 +63,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var category = await _unityOfWork.CategoryRepository.GetAsync(id);
+                var category = await _categoryRepo.GetAsync(id);
                 if(category is null)
                 {
                     return NotFound("Category not found.");
@@ -86,8 +87,7 @@ namespace CatalogAPI.Controllers
                 {
                     return BadRequest();
                 }
-                await _unityOfWork.CategoryRepository.CreateAsync(entity);
-                _unityOfWork.Commit();
+                await _categoryRepo.CreateAsync(entity);
                 return new CreatedAtRouteResult("GetCategory", new { id = entity.CategoryId }, entity);
             }
             catch (Exception ex)
@@ -101,9 +101,9 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var updatedCategory = await _unityOfWork.CategoryRepository.UpdateAsync(entity);
+                var updatedCategory = await _categoryRepo.UpdateAsync(entity);
+
                 if (updatedCategory is null) return NotFound("Category not found");
-                _unityOfWork.Commit();
                 return Ok(entity);
             }
             catch(Exception ex) 
@@ -117,8 +117,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                await _unityOfWork.CategoryRepository.DeleteAsync(id);
-                _unityOfWork.Commit();
+                await _categoryRepo.DeleteAsync(id);
                 return Ok();
             }
             catch( Exception ex) 

@@ -83,6 +83,7 @@ public class CategoryRepository : ICategoryRepository<Category>
             if (entity != null)
             {
                await _context.AddAsync(entity);
+               await _context.SaveChangesAsync();
                return entity;
             }
             return null;
@@ -97,11 +98,12 @@ public class CategoryRepository : ICategoryRepository<Category>
     {
         try
         {
-            var existingCategory = await _context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.CategoryId == entity.CategoryId);
+            var existingCategory = await _context.Categories.FindAsync(entity.CategoryId);
 
             if (existingCategory != null) 
             {
                 _context.Entry(existingCategory).CurrentValues.SetValues(entity);
+                await _context.SaveChangesAsync();
                 return entity;
             }
 
@@ -123,6 +125,7 @@ public class CategoryRepository : ICategoryRepository<Category>
             if (existingCategory != null)
             {
                 _context.Remove(existingCategory);
+                await _context.SaveChangesAsync();
             }
 
         } catch (Exception ex)

@@ -15,11 +15,11 @@ namespace CatalogAPI.Controllers
     public class ProductsController : ControllerBase
     {
 
-        private readonly IUnityOfWork _unityOfWork;
+        private readonly IProductRepository<Product> _productRepo;
 
-        public ProductsController(IUnityOfWork unityOfWork)
+        public ProductsController(IProductRepository<Product> productRepo)
         {
-            _unityOfWork = unityOfWork;
+            _productRepo = productRepo;
         }
 
         [HttpGet]
@@ -27,7 +27,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var products = await _unityOfWork.ProductRepository.GetAllAsync();
+                var products = await _productRepo.GetAllAsync();
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
@@ -46,7 +46,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var Product = await _unityOfWork.ProductRepository.GetAsync(id);
+                var Product = await _productRepo.GetAsync(id);
                 if (Product == null)
                 {
                     return NotFound("Product not found");
@@ -69,8 +69,7 @@ namespace CatalogAPI.Controllers
                     return BadRequest();
                 };
 
-                await _unityOfWork.ProductRepository.CreateAsync(product);
-                _unityOfWork.Commit();
+                await _productRepo.CreateAsync(product);
                 return new CreatedAtRouteResult("GetProduct", new { id = product.ProductId }, product );
             }
             catch (Exception ex)
@@ -84,8 +83,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                await _unityOfWork.ProductRepository.UpdateAsync(product);
-                _unityOfWork.Commit();
+                await _productRepo.UpdateAsync(product);
                 return Ok(product); 
             }
             catch (Exception ex)
@@ -99,8 +97,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                await _unityOfWork.ProductRepository.DeleteAsync(id);
-                _unityOfWork.Commit();
+                await _productRepo.DeleteAsync(id);
                 return NoContent();
             }
             catch (Exception ex)

@@ -4,10 +4,10 @@ using CatalogAPI.Repository.Interfaces;
 
 namespace CatalogAPI.UnityOfWork
 {
-    public interface IUnityOfWork : IDisposable
+    public interface IUnityOfWork
     {
-        IProductRepository<Product> ProductRepository { get; }
-        ICategoryRepository<Category> CategoryRepository { get; }
-        void Commit();
+        //IProductRepository<Product> ProductRepository { get; }
+        //ICategoryRepository<Category> CategoryRepository { get; }
+        //void Commit();
     }
 }

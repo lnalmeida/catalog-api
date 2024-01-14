@@ -1,6 +1,5 @@
 using CatalogAPI.Context;
 using CatalogAPI.Domain;
-using CatalogAPI.Domain.DTO;
 using CatalogAPI.Repository;
 using CatalogAPI.Repository.Interfaces;
 using CatalogAPI.UnityOfWork;
@@ -25,9 +24,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
-builder.Services.AddScoped<IProductRepository<Product>, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository<Category>, CategoryRepository>();
-builder.Services.AddScoped<IUnityOfWork, UnityOfWork>();
+builder.Services.AddScoped<IProductRepository<Product>, ProductRepository>();
 
 var app = builder.Build();
 
