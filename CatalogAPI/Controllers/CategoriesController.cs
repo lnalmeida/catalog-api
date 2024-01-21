@@ -1,11 +1,8 @@
-﻿using CatalogAPI.Context;
+﻿using AutoMapper;
 using CatalogAPI.Domain;
-using CatalogAPI.Domain.DTO;
-using CatalogAPI.Repository.Interfaces;
+using CatalogAPI.DTO;
 using CatalogAPI.UnityOfWork;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CatalogAPI.Controllers
 {
@@ -13,24 +10,28 @@ namespace CatalogAPI.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryRepository<Category> _categoryRepo;
+        private readonly IUnityOfWork _unityOfWork;
+        private readonly IMapper _mapper;
 
-        public CategoriesController (ICategoryRepository<Category> categoryRepo)
+        public CategoriesController (IUnityOfWork unityOfWork, IMapper mapper)
         {
-            _categoryRepo = categoryRepo;
+            _unityOfWork = unityOfWork;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync()
         {
             try
             {
-                var categories = await _categoryRepo.GetAllAsync();
+                var categories = _unityOfWork.CategoryRepository.GetAllAsync();
                 if(categories is null) 
                 {
                     return NotFound("No there registered categpries");
                 }
-                return Ok(categories);
+
+                var categoriesDto = _mapper.Map<List<CategoryDto>>(categories);
+                return Ok(categoriesDto);
             }
             catch (Exception ex)
             {
@@ -40,15 +41,16 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet("products/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategoryProductsAsync(string categoryId)
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetCategoryProductsAsync(string categoryId)
         {
             try
             {
-                var categoryProducts = await _categoryRepo.GetCategoryProducts(categoryId);
+                var categoryProducts = await _unityOfWork.CategoryRepository.GetCategoryProducts(categoryId);
                 if (categoryProducts is null)
                 {
                     return NotFound("Category not found.");
                 }
+                var categoryProductsDto = _mapper.Map<List<ProductDto>>(categoryProducts);
                 return Ok(categoryProducts);
             }
             catch (Exception ex)
@@ -63,13 +65,15 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var category = await _categoryRepo.GetAsync(id);
+                var parsedID = Guid.Parse(id);
+                var category = await _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == parsedID);
                 if(category is null)
                 {
                     return NotFound("Category not found.");
                 }
-            
-                return Ok(category);
+
+                var categoryDto = _mapper.Map<CategoryDto>(category);
+                return Ok(categoryDto);
             }
             catch (Exception ex)
             {
@@ -79,16 +83,19 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Category entity)
+        public async Task<ActionResult> PostAsync(CategoryDto entityDto)
         {
             try
             {
-                if(entity is null)
+                if(entityDto is null)
                 {
                     return BadRequest();
                 }
-                await _categoryRepo.CreateAsync(entity);
-                return new CreatedAtRouteResult("GetCategory", new { id = entity.CategoryId }, entity);
+
+                var entity = _mapper.Map<Category>(entityDto);
+                _unityOfWork.CategoryRepository.CreateAsync(entity);
+                await _unityOfWork.Commit();
+                return new CreatedAtRouteResult("GetCategory", new { id = entityDto.CategoryId }, entityDto);
             }
             catch (Exception ex)
             {
@@ -97,13 +104,16 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Category>> PutAsync(Category entity) 
+        public async Task<ActionResult<CategoryDto>> PutAsync(CategoryDto entityDto) 
         {
             try
             {
-                var updatedCategory = await _categoryRepo.UpdateAsync(entity);
+                var updatedCategory = _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == entityDto.CategoryId);
 
                 if (updatedCategory is null) return NotFound("Category not found");
+                var entity = _mapper.Map<Category>(entityDto);
+                _unityOfWork.CategoryRepository.UpdateAsync(entity);
+                await _unityOfWork.Commit();
                 return Ok(entity);
             }
             catch(Exception ex) 
@@ -117,7 +127,11 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                await _categoryRepo.DeleteAsync(id);
+                var parsedId = Guid.Parse(id);
+                var deletedCategory = await _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == parsedId);
+                if (deletedCategory is null) return NotFound("Category not found");
+                _unityOfWork.CategoryRepository.DeleteAsync(deletedCategory);
+                await _unityOfWork.Commit();
                 return Ok();
             }
             catch( Exception ex) 

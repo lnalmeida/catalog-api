@@ -1,12 +1,9 @@
-﻿using CatalogAPI.Context;
+﻿using AutoMapper;
 using CatalogAPI.Domain;
-using CatalogAPI.Domain.DTO;
-using CatalogAPI.Repository;
+using CatalogAPI.DTO;
 using CatalogAPI.Repository.Interfaces;
 using CatalogAPI.UnityOfWork;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CatalogAPI.Controllers
 {
@@ -15,24 +12,28 @@ namespace CatalogAPI.Controllers
     public class ProductsController : ControllerBase
     {
 
-        private readonly IProductRepository<Product> _productRepo;
+        private readonly IUnityOfWork _unityOfWork;
+        private readonly IMapper _mapper;
 
-        public ProductsController(IProductRepository<Product> productRepo)
+        public ProductsController(IUnityOfWork unityOfWork, IMapper mapper)
         {
-            _productRepo = productRepo;
+            _unityOfWork = unityOfWork;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllAsync()
         {
             try
             {
-                var products = await _productRepo.GetAllAsync();
+                var products = _unityOfWork.ProductRepository.GetAllAsync();
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
                 }
-                return Ok(products);
+
+                var productsDto = _mapper.Map<List<ProductDto>>(products);
+                return Ok(productsDto);
             }
             catch (Exception ex)
             {
@@ -42,16 +43,19 @@ namespace CatalogAPI.Controllers
 
         [HttpGet("{id}", Name ="GetProduct")]
 
-        public async Task<ActionResult<Product>> GetAsync(string id) 
+        public async Task<ActionResult<ProductDto>> GetAsync(string id) 
         {
             try
             {
-                var Product = await _productRepo.GetAsync(id);
-                if (Product == null)
+                var parsedId = Guid.Parse(id);
+                var product = await _unityOfWork.ProductRepository.GetAsync(p => p.ProductId == parsedId);
+                if (product == null)
                 {
                     return NotFound("Product not found");
                 }
-                return Ok(Product);
+
+                var productDto = _mapper.Map<ProductDto>(product);
+                return Ok(productDto);
             }
             catch (Exception ex)
             {
@@ -60,17 +64,18 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostAsync(Product product)
+        public async Task<ActionResult> PostAsync(ProductDto entityDto)
         {
             try
             {
-                if(product == null)
+                if(entityDto == null)
                 {
                     return BadRequest();
                 };
-
-                await _productRepo.CreateAsync(product);
-                return new CreatedAtRouteResult("GetProduct", new { id = product.ProductId }, product );
+                var newProduct = _mapper.Map<Product>(entityDto);
+                _unityOfWork.ProductRepository.CreateAsync(newProduct);
+                await _unityOfWork.Commit();
+                return new CreatedAtRouteResult("GetProduct", new { id = newProduct.ProductId }, newProduct );
             }
             catch (Exception ex)
             {
@@ -79,12 +84,16 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutAsync(Product product)
+        public async Task<ActionResult> PutAsync(ProductDto productDto)
         {
             try
             {
-                await _productRepo.UpdateAsync(product);
-                return Ok(product); 
+                var updatedProduct = await _unityOfWork.ProductRepository.GetAsync(p => p.ProductId == productDto.ProductId);
+                if (updatedProduct is null) return NotFound("Product not found.");
+                var entity = _mapper.Map<Product>(productDto);
+                _unityOfWork.ProductRepository.UpdateAsync(entity);
+                await _unityOfWork.Commit();
+                return Ok(entity); 
             }
             catch (Exception ex)
             {
@@ -97,8 +106,12 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                await _productRepo.DeleteAsync(id);
-                return NoContent();
+                var parsedId = Guid.Parse(id);
+                var deletedProduct = await _unityOfWork.ProductRepository.GetAsync(p => p.ProductId == parsedId);
+                if (deletedProduct is null) return NotFound("Product not found");
+                _unityOfWork.ProductRepository.DeleteAsync(deletedProduct);
+                await _unityOfWork.Commit();
+                return Ok(deletedProduct);
             }
             catch (Exception ex)
             {

@@ -1,10 +1,9 @@
-﻿using CatalogAPI.Domain.DTO;
-using System.Security.Claims;
+﻿using CatalogAPI.Domain;
 
 namespace CatalogAPI.Repository.Interfaces
 {
-    public interface IProductRepository<T> : IRepository<T>
+    public interface IProductRepository : IRepository<Product>
     {
-        public Task<IEnumerable<T>> GetByCategory(string categoryId);
+        public Task<IEnumerable<Product>> GetProductsByStock(int quantity);
     }
 }

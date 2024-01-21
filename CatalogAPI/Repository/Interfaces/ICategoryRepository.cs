@@ -1,7 +1,9 @@
-﻿namespace CatalogAPI.Repository.Interfaces
+﻿using CatalogAPI.Domain;
+
+namespace CatalogAPI.Repository.Interfaces
 {
-    public interface ICategoryRepository<T> : IRepository<T>
+    public interface ICategoryRepository : IRepository<Category>
     {
-        public Task<IEnumerable<T>> GetCategoryProducts(string categoryId);
+        public Task<IEnumerable<Category>> GetCategoryProducts(string categoryId);
     }
 }

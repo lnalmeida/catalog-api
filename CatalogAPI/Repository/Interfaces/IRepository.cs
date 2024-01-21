@@ -1,12 +1,14 @@
-﻿namespace CatalogAPI.Repository.Interfaces
+﻿using System.Linq.Expressions;
+
+namespace CatalogAPI.Repository.Interfaces
 {
     public interface IRepository<T>
     {
         
-        public Task<IEnumerable<T>> GetAllAsync();
-        public Task<T> GetAsync(string id);
-        public Task<T> CreateAsync(T entity);
-        public Task<T> UpdateAsync(T entity);
-        public Task DeleteAsync(string id);
+        IQueryable<T> GetAllAsync();
+        Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
+        void CreateAsync(T entity);
+        void UpdateAsync(T entity);
+        void DeleteAsync(T entity);
     }
 }

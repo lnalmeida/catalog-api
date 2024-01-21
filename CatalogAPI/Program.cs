@@ -1,10 +1,9 @@
 using CatalogAPI.Context;
-using CatalogAPI.Domain;
-using CatalogAPI.Repository;
-using CatalogAPI.Repository.Interfaces;
 using CatalogAPI.UnityOfWork;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using AutoMapper;
+using CatalogAPI.DTO.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,8 +23,15 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
 
-builder.Services.AddScoped<ICategoryRepository<Category>, CategoryRepository>();
-builder.Services.AddScoped<IProductRepository<Product>, ProductRepository>();
+builder.Services.AddScoped<IUnityOfWork, UnityOfWork>();
+
+var mappingConfig = new MapperConfiguration(mc =>
+{
+    mc.AddProfile(new MappingProfile());
+});
+
+IMapper mapper = mappingConfig.CreateMapper();
+builder.Services.AddSingleton(mapper);
 
 var app = builder.Build();
 

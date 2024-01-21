@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace CatalogAPI.Domain
 {
@@ -15,16 +14,10 @@ namespace CatalogAPI.Domain
         }
 
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid CategoryId { get; set; }
-
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)] public Guid CategoryId { get; set; }
         [Required(ErrorMessage = "The name can not be null")]
-        [MaxLength(80)]
-        public string? CategoryName { get; set; }
-
-        [MaxLength(300)]
-        public string? CategoryImageUrl { get; set; }
-        
+        [MaxLength(80)] public string CategoryName { get; set; } = string.Empty;
+        [MaxLength(300)] public string CategoryImageUrl { get; set; } = string.Empty;
         public ICollection<Product>? Products { get; set;}
     }
 }
