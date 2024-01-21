@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using AutoMapper;
 using CatalogAPI.DTO.Mapping;
+using CatalogAPI.Repository;
+using CatalogAPI.Repository.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +26,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 builder.Services.AddScoped<IUnityOfWork, UnityOfWork>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var mappingConfig = new MapperConfiguration(mc =>
 {

@@ -1,4 +1,5 @@
 ﻿using CatalogAPI.Context;
+using CatalogAPI.Domain;
 using CatalogAPI.Repository;
 using CatalogAPI.Repository.Interfaces;
 
@@ -21,7 +22,11 @@ namespace CatalogAPI.UnityOfWork
         {
             get
             {
-                return _productRepository ?? new ProductRepository(_context);
+                if (_productRepository is null)
+                {
+                    _productRepository = new ProductRepository(_context);
+                }
+                return _productRepository;
             }
         }
 
@@ -29,7 +34,12 @@ namespace CatalogAPI.UnityOfWork
         {
             get
             {
-                return _categoryRepository ?? new CategoryRepository(_context);
+                if (_categoryRepository is null)
+                {
+                    _categoryRepository = new CategoryRepository(_context);
+                }
+
+                return _categoryRepository;
             }
         }
 
