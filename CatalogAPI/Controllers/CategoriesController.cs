@@ -108,7 +108,7 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var updatedCategory = _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == entityDto.CategoryId);
+                var updatedCategory =  await _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == entityDto.CategoryId);
 
                 if (updatedCategory is null) return NotFound("Category not found");
                 var entity = _mapper.Map<Category>(entityDto);
