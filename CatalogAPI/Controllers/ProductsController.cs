@@ -63,6 +63,23 @@ namespace CatalogAPI.Controllers
             }
         }
 
+        [HttpGet("stock")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByStock(int quantity)
+        {
+            try
+            {
+                var productsByStockDto = await _unityOfWork.ProductRepository.GetProductsByStock(quantity);
+                if (productsByStockDto is null)
+                    return NotFound($"No there products that the stock less than or equals {quantity}");
+                var producstsByStockDto = _mapper.Map<List<Product>>(productsByStockDto);
+                return Ok(producstsByStockDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred with your request. \nMessage: {ex.Message}");
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> PostAsync(ProductDto entityDto)
         {

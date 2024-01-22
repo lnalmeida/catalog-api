@@ -50,8 +50,8 @@ namespace CatalogAPI.Controllers
                 {
                     return NotFound("Category not found.");
                 }
-                var categoryProductsDto = _mapper.Map<List<ProductDto>>(categoryProducts);
-                return Ok(categoryProducts);
+                var categoryProductsDto = _mapper.Map<List<CategoryDto>>(categoryProducts);
+                return Ok(categoryProductsDto);
             }
             catch (Exception ex)
             {
