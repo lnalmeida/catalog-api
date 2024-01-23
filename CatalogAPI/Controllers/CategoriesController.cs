@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using CatalogAPI.Domain;
 using CatalogAPI.DTO;
+using CatalogAPI.Pagination;
 using CatalogAPI.UnityOfWork;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers
 {
@@ -20,15 +22,27 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync(int pageNumber, int pageSize)
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync([FromQuery] PaginationParameters paginationParameters)
         {
             try
             {
-                var categories = _unityOfWork.CategoryRepository.GetAllAsync();
+                var categories = await _unityOfWork.CategoryRepository.GetAll(paginationParameters);
                 if(categories is null) 
                 {
                     return NotFound("No there registered categpries");
                 }
+                
+                var metadata = new
+                {
+                    categories.TotalCount,
+                    categories.PageSize,
+                    categories.CurrentPage,
+                    categories.TotalPages,
+                    categories.HasNext,
+                    categories.HasPrevious
+                };
+                
+                Response.Headers.Add("X-Pagination", metadata.ToJson());
 
                 var categoriesDto = _mapper.Map<List<CategoryDto>>(categories);
                 return Ok(categoriesDto);

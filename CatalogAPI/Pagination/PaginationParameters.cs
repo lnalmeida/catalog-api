@@ -1,6 +1,6 @@
 namespace CatalogAPI.Pagination;
 
-public class ProductsParameters
+public class PaginationParameters
 {
     private const int maxPageSize = 50;
 

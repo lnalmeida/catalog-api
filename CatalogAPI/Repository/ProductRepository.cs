@@ -14,17 +14,10 @@ public class ProductRepository : Repository<Product>, IProductRepository
         _context = context;
     }
 
-    public async Task<PagedList<Product>> GetAll(ProductsParameters productsParameters)
+    public async Task<PagedList<Product>> GetAll(PaginationParameters paginationParameters)
     {
-        // return await _context.Products
-        //     .OrderByDescending(on => on.Name)
-        //     .AsNoTracking()
-        //     .Skip((productsParameters.PageNumber - 1) * productsParameters.PageSize)
-        //     .Take(productsParameters.PageSize)
-        //     .ToListAsync();
-
-        var allProducts = _context.Products.AsNoTracking();
-        return PagedList<Product>.ToPagedList(allProducts.OrderByDescending(on => on.Name), productsParameters.PageNumber, productsParameters.PageSize);
+        var allProducts =  _context.Products.AsNoTracking();
+        return PagedList<Product>.ToPagedList(allProducts.OrderByDescending(on => on.Name), paginationParameters.PageNumber, paginationParameters.PageSize);
     }
 
     public async Task<IEnumerable<Product>> GetProductsByStock(int quantity)

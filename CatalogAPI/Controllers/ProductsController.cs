@@ -24,11 +24,11 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PagedList<ProductDto>>> GetAllAsync([FromQuery] ProductsParameters productsParameters)
+        public async Task<ActionResult<PagedList<ProductDto>>> GetAllAsync([FromQuery] PaginationParameters paginationParameters)
         {
             try
             {
-                var products = await _unityOfWork.ProductRepository.GetAll(productsParameters);
+                var products = await _unityOfWork.ProductRepository.GetAll(paginationParameters);
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
