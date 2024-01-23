@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using CatalogAPI.Domain;
 using CatalogAPI.DTO;
+using CatalogAPI.Pagination;
 using CatalogAPI.Repository.Interfaces;
 using CatalogAPI.UnityOfWork;
 using Microsoft.AspNetCore.Mvc;
+using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers
 {
@@ -22,15 +24,27 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetAllAsync()
+        public async Task<ActionResult<PagedList<ProductDto>>> GetAllAsync([FromQuery] ProductsParameters productsParameters)
         {
             try
             {
-                var products = _unityOfWork.ProductRepository.GetAllAsync();
+                var products = await _unityOfWork.ProductRepository.GetAll(productsParameters);
                 if (products == null)
                 {
                     return NotFound("No there registered products.");
                 }
+
+                var metadata = new
+                {
+                    products.TotalCount,
+                    products.PageSize,
+                    products.CurrentPage,
+                    products.TotalPages,
+                    products.HasNext,
+                    products.HasPrevious
+                };
+                
+                Response.Headers.Add("X-Pagination", metadata.ToJson());
 
                 var productsDto = _mapper.Map<List<ProductDto>>(products);
                 return Ok(productsDto);
@@ -40,6 +54,8 @@ namespace CatalogAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred with your request. \nMessage: {ex.Message}");
             }
         }
+        
+        
 
         [HttpGet("{id}", Name ="GetProduct")]
 
@@ -64,7 +80,7 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet("stock")]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByStock(int quantity)
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByStockAsync(int quantity)
         {
             try
             {

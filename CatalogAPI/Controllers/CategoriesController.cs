@@ -20,7 +20,7 @@ namespace CatalogAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync()
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync(int pageNumber, int pageSize)
         {
             try
             {
