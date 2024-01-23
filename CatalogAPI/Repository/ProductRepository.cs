@@ -17,7 +17,7 @@ public class ProductRepository : Repository<Product>, IProductRepository
     public async Task<PagedList<Product>> GetAll(PaginationParameters paginationParameters)
     {
         var allProducts =  _context.Products.AsNoTracking();
-        return PagedList<Product>.ToPagedList(allProducts.OrderByDescending(on => on.Name), paginationParameters.PageNumber, paginationParameters.PageSize);
+        return await  PagedList<Product>.ToPagedList(allProducts.OrderByDescending(on => on.Name), paginationParameters.PageNumber, paginationParameters.PageSize);
     }
 
     public async Task<IEnumerable<Product>> GetProductsByStock(int quantity)

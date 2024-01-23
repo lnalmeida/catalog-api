@@ -17,8 +17,8 @@ public class CategoryRepository : Repository<Category>, ICategoryRepository
     
     public async Task<PagedList<Category>> GetAll(PaginationParameters paginationParameters)
     {
-        var allCategories = _context.Categories.AsNoTracking();
-        return PagedList<Category>.ToPagedList(allCategories.OrderByDescending(on => on.CategoryName), paginationParameters.PageNumber, paginationParameters.PageSize);
+        var allCategories =  _context.Categories.AsNoTracking();
+        return await PagedList<Category>.ToPagedList(allCategories.OrderByDescending(on => on.CategoryName), paginationParameters.PageNumber, paginationParameters.PageSize);
     }
     
     public async Task<IEnumerable<Category>> GetCategoryProducts(string categoryId)
