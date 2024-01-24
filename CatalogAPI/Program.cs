@@ -1,3 +1,4 @@
+using System.Text;
 using CatalogAPI.Context;
 using CatalogAPI.UnityOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,10 @@ using AutoMapper;
 using CatalogAPI.DTO.Mapping;
 using CatalogAPI.Repository;
 using CatalogAPI.Repository.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +33,17 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options => options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidIssuer = builder.Configuration["TokenConfiguration:Issuer"],
+        ValidAudience = builder.Configuration["TokenConfiguration:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
+    });
 
 builder.Services.AddScoped<IUnityOfWork, UnityOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

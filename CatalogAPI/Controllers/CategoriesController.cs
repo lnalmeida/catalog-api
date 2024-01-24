@@ -3,11 +3,13 @@ using CatalogAPI.Domain;
 using CatalogAPI.DTO;
 using CatalogAPI.Pagination;
 using CatalogAPI.UnityOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase
@@ -79,8 +81,8 @@ namespace CatalogAPI.Controllers
         {
             try
             {
-                var parsedID = Guid.Parse(id);
-                var category = await _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == parsedID);
+                var parsedId = Guid.Parse(id);
+                var category = await _unityOfWork.CategoryRepository.GetAsync(c => c.CategoryId == parsedId);
                 if(category is null)
                 {
                     return NotFound("Category not found.");
