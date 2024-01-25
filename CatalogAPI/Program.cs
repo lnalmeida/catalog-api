@@ -42,6 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidateLifetime = true,
         ValidIssuer = builder.Configuration["TokenConfiguration:Issuer"],
         ValidAudience = builder.Configuration["TokenConfiguration:Audience"],
+        RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
     });
 
