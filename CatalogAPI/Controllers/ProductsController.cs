@@ -2,13 +2,14 @@
 using CatalogAPI.Domain;
 using CatalogAPI.DTO;
 using CatalogAPI.Pagination;
-using CatalogAPI.Repository.Interfaces;
 using CatalogAPI.UnityOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers
 {
+    [Authorize(AuthenticationSchemes = "Bearer")]
     [Route("[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
@@ -23,6 +24,7 @@ namespace CatalogAPI.Controllers
             _mapper = mapper;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<PagedList<ProductDto>>> GetAllAsync([FromQuery] PaginationParameters paginationParameters)
         {
@@ -57,6 +59,7 @@ namespace CatalogAPI.Controllers
         
         
 
+        [AllowAnonymous]
         [HttpGet("{id}", Name ="GetProduct")]
 
         public async Task<ActionResult<ProductDto>> GetAsync(string id) 
@@ -79,6 +82,7 @@ namespace CatalogAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "super, admin")]
         [HttpGet("stock")]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByStockAsync(int quantity)
         {
@@ -96,8 +100,9 @@ namespace CatalogAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "super, admin")]
         [HttpPost]
-        public async Task<ActionResult> PostAsync(ProductDto entityDto)
+        public async Task<ActionResult> PostAsync(InsertProductDto entityDto)
         {
             try
             {
@@ -116,6 +121,7 @@ namespace CatalogAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "super, admin")]
         [HttpPut("{id}")]
         public async Task<ActionResult> PutAsync(ProductDto productDto)
         {
@@ -134,6 +140,7 @@ namespace CatalogAPI.Controllers
             }
         }
 
+        [Authorize(Roles = "super")]
         [HttpDelete("{id}")]   
         public async Task<ActionResult> DeleteAsync(string id)
         {

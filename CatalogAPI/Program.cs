@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         ValidAudience = builder.Configuration["TokenConfiguration:Audience"],
         RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role",
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]))
-    });
+    }); 
 
 builder.Services.AddScoped<IUnityOfWork, UnityOfWork>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

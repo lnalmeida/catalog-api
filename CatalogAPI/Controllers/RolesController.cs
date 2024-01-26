@@ -22,7 +22,7 @@ public class RolesController : ControllerBase
         _userManager = userManager;
     }
     
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "super, admin")]
     [HttpGet]
     public async Task<IActionResult> GetRoles()
     {
@@ -37,26 +37,27 @@ public class RolesController : ControllerBase
         }
     }
     
-    [Authorize(Roles = "user")]
+    [Authorize(Roles = "super")]
     [HttpPost]
     public async Task<ActionResult> CreateRole([FromBody]string roleName)
     {
         try
         {
-            if (string.IsNullOrEmpty(roleName))
+            string lowRoleName = roleName.ToLower();
+            if (string.IsNullOrEmpty(lowRoleName))
             {
                 return BadRequest("Role name cannot be empty.");
             }
                     
-            if (await _roleManager.RoleExistsAsync(roleName))
+            if (await _roleManager.RoleExistsAsync(lowRoleName))
             {
                 return BadRequest("This role already exists!");
             }
 
-            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+            var result = await _roleManager.CreateAsync(new IdentityRole(lowRoleName));
             return result.Succeeded
-                ? Ok($"Role {roleName} created successfully.")
-                : BadRequest($"Failure on create role {roleName}");
+                ? Ok($"Role {lowRoleName} created successfully.")
+                : BadRequest($"Failure on create role {lowRoleName}");
         }
         catch (Exception ex)
         {
@@ -64,13 +65,15 @@ public class RolesController : ControllerBase
         }
         
     }
-
+    
+    [Authorize(Roles = "super")]
     [HttpDelete("{roleName}")]
     public async Task<ActionResult> DeleteRole(string roleName)
     {
         try
         {
-            var role = await _roleManager.FindByNameAsync(roleName);
+            string lowRoleName = roleName.ToLower();
+            var role = await _roleManager.FindByNameAsync(lowRoleName);
 
             if (role != null)
             {
@@ -87,20 +90,24 @@ public class RolesController : ControllerBase
 
     }
     
-    [HttpPatch("{username}")]
-    public async Task<ActionResult> UpdateUserRole(string userName, [FromBody]string newRole)
+    [Authorize(Roles = "super")]
+    [HttpPatch("change/{userName}")]
+    public async Task<ActionResult> ChangeUserRole(string userName, [FromBody]string newRole)
     {
         try
         {
+            string lowNewRole = newRole.ToLower();
             var user = await _userManager.Users.SingleOrDefaultAsync(u => u.UserName == userName);
             if (user is null) return NotFound("User not found");
-            var existingRole = await _roleManager.FindByNameAsync(newRole);
+            var existingRole = await _roleManager.FindByNameAsync(lowNewRole);
             if (existingRole is null) return BadRequest("This role not exists!");
-            var oldRole =  _userManager.GetRolesAsync(user);
-            await _userManager.RemoveFromRoleAsync(user, oldRole.ToString());
-            await _userManager.AddToRoleAsync(user, newRole);
-            return Ok($"The user {user.Email} now have a new role: {newRole.ToString()}");
-
+            var currentRoles = _userManager.GetRolesAsync(user).Result.ToList();
+            foreach (var role in currentRoles)
+            {
+                await _userManager.RemoveFromRoleAsync(user, role);
+            }
+            await _userManager.AddToRoleAsync(user, lowNewRole);
+            return Ok($"The user {user.Email} now have a new role: {lowNewRole}");
         }
         catch (Exception ex)
         {

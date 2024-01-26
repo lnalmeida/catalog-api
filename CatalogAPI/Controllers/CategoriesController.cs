@@ -23,6 +23,7 @@ public class CategoriesController : ControllerBase
         _mapper = mapper;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync([FromQuery] PaginationParameters paginationParameters)
     {
@@ -56,6 +57,7 @@ public class CategoriesController : ControllerBase
 
     }
 
+    [AllowAnonymous]
     [HttpGet("products/{categoryId}")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetCategoryProductsAsync(string categoryId)
     {
@@ -76,6 +78,7 @@ public class CategoriesController : ControllerBase
 
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}", Name ="GetCategory")]
     public async Task<ActionResult<Category>> GetByIdAsync(string id) 
     {
@@ -98,8 +101,9 @@ public class CategoriesController : ControllerBase
             
     }
 
+    [Authorize(Roles = "super, admin")]
     [HttpPost]
-    public async Task<ActionResult> PostAsync(CategoryDto entityDto)
+    public async Task<ActionResult> PostAsync(InserCategoryDto entityDto)
     {
         try
         {
@@ -111,7 +115,8 @@ public class CategoriesController : ControllerBase
             var entity = _mapper.Map<Category>(entityDto);
             _unityOfWork.CategoryRepository.CreateAsync(entity);
             await _unityOfWork.Commit();
-            return new CreatedAtRouteResult("GetCategory", new { id = entityDto.CategoryId }, entityDto);
+            var newEntityId = entity.CategoryId;
+            return new CreatedAtRouteResult("GetCategory", new { id = newEntityId }, entityDto);
         }
         catch (Exception ex)
         {
@@ -119,6 +124,7 @@ public class CategoriesController : ControllerBase
         }           
     }
 
+    [Authorize(Roles = "super, admin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<CategoryDto>> PutAsync(CategoryDto entityDto) 
     {
@@ -138,6 +144,7 @@ public class CategoriesController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "super")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(string id)
     {

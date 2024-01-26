@@ -38,7 +38,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult> RegisterUser(UserDto userModel)
+    public async Task<ActionResult> RegisterUser(UserRegisterDto userModel)
     {
         try
         {
@@ -52,11 +52,7 @@ public class AuthController : ControllerBase
             };
             
             var result = await _userManager.CreateAsync(newUser, userModel.Password);
-            if (!await _userManager.IsInRoleAsync(newUser, userModel.Role))
-            {
-                await _userManager.AddToRoleAsync(newUser, userModel.Role);
-            }
-            
+            await _userManager.AddToRoleAsync(newUser, userModel.Role);
 
             if (!result.Succeeded) return BadRequest(result.Errors);
 
@@ -71,7 +67,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult> Login(UserDto userInfo)
+    public async Task<ActionResult> Login(LoginDto userInfo)
     {
         try
         {
@@ -104,7 +100,7 @@ public class AuthController : ControllerBase
        
     }
 
-    private UserTokenDto GenerateToken(UserDto userInfo, string? role)
+    private UserTokenDto GenerateToken(LoginDto userInfo, string? role)
     {
         try
         {
@@ -113,7 +109,7 @@ public class AuthController : ControllerBase
                     new Claim(JwtRegisteredClaimNames.UniqueName, userInfo.Email),
                     new Claim("nome", "L.Nunes"),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(ClaimTypes.Role, string.Join(",", role))
+                    new Claim(ClaimTypes.Role, role)
                 };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
