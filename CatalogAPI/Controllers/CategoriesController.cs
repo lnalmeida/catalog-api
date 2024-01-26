@@ -9,9 +9,9 @@ using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers;
 
-[Authorize(AuthenticationSchemes = "Bearer")]
 [Route("[controller]")]
 [ApiController]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class CategoriesController : ControllerBase
 {
     private readonly IUnityOfWork _unityOfWork;
@@ -22,7 +22,7 @@ public class CategoriesController : ControllerBase
         _unityOfWork = unityOfWork;
         _mapper = mapper;
     }
-
+    
     [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllAsync([FromQuery] PaginationParameters paginationParameters)
@@ -78,7 +78,7 @@ public class CategoriesController : ControllerBase
 
     }
 
-    [AllowAnonymous]
+    [Authorize(Roles = "super, admin, user")]
     [HttpGet("{id}", Name ="GetCategory")]
     public async Task<ActionResult<Category>> GetByIdAsync(string id) 
     {

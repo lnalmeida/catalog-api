@@ -37,7 +37,7 @@ public class RolesController : ControllerBase
         }
     }
     
-    [Authorize(Roles = "super")]
+    [Authorize(Roles = "super, admin")]
     [HttpPost]
     public async Task<ActionResult> CreateRole([FromBody]string roleName)
     {
@@ -66,7 +66,7 @@ public class RolesController : ControllerBase
         
     }
     
-    [Authorize(Roles = "super")]
+    [Authorize(Roles = "admin")]
     [HttpDelete("{roleName}")]
     public async Task<ActionResult> DeleteRole(string roleName)
     {
@@ -90,7 +90,7 @@ public class RolesController : ControllerBase
 
     }
     
-    [Authorize(Roles = "super")]
+    [Authorize(Roles = "super, admin")]
     [HttpPatch("change/{userName}")]
     public async Task<ActionResult> ChangeUserRole(string userName, [FromBody]string newRole)
     {
