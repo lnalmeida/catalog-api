@@ -11,7 +11,7 @@ namespace CatalogAPI.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = "Bearer")]
+
 public class ProductsController : ControllerBase
 {
 
@@ -59,7 +59,7 @@ public class ProductsController : ControllerBase
         
         
 
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpGet("{id}", Name ="GetProduct")]
     public async Task<ActionResult<ProductDto>> GetAsync(string id) 
     {
@@ -81,7 +81,7 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpGet("stock")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByStockAsync(int quantity)
     {
@@ -99,7 +99,7 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<ActionResult> PostAsync(InsertProductDto entityDto)
     {
@@ -120,7 +120,7 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
     public async Task<ActionResult> PutAsync(ProductDto productDto)
     {
@@ -139,7 +139,7 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "super")]
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]   
     public async Task<ActionResult> DeleteAsync(string id)
     {

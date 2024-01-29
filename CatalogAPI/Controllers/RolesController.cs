@@ -8,8 +8,6 @@ namespace CatalogAPI.Controllers;
 
 [Route("api/auth/[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = "Bearer")]
-
 
 public class RolesController : ControllerBase
 {
@@ -22,7 +20,7 @@ public class RolesController : ControllerBase
         _userManager = userManager;
     }
     
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpGet]
     public async Task<IActionResult> GetRoles()
     {
@@ -37,7 +35,7 @@ public class RolesController : ControllerBase
         }
     }
     
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<ActionResult> CreateRole([FromBody]string roleName)
     {
@@ -72,7 +70,7 @@ public class RolesController : ControllerBase
     {
         try
         {
-            string lowRoleName = roleName.ToLower();
+            var lowRoleName = roleName.ToLower();
             var role = await _roleManager.FindByNameAsync(lowRoleName);
 
             if (role != null)
@@ -90,7 +88,7 @@ public class RolesController : ControllerBase
 
     }
     
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpPatch("change/{userName}")]
     public async Task<ActionResult> ChangeUserRole(string userName, [FromBody]string newRole)
     {

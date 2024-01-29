@@ -11,7 +11,7 @@ namespace CatalogAPI.Controllers;
 
 [Route("[controller]")]
 [ApiController]
-[Authorize(AuthenticationSchemes = "Bearer")]
+
 public class CategoriesController : ControllerBase
 {
     private readonly IUnityOfWork _unityOfWork;
@@ -78,7 +78,7 @@ public class CategoriesController : ControllerBase
 
     }
 
-    [Authorize(Roles = "super, admin, user")]
+    [Authorize(Roles = "admin, user")]
     [HttpGet("{id}", Name ="GetCategory")]
     public async Task<ActionResult<Category>> GetByIdAsync(string id) 
     {
@@ -101,7 +101,7 @@ public class CategoriesController : ControllerBase
             
     }
 
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpPost]
     public async Task<ActionResult> PostAsync(InserCategoryDto entityDto)
     {
@@ -124,7 +124,7 @@ public class CategoriesController : ControllerBase
         }           
     }
 
-    [Authorize(Roles = "super, admin")]
+    [Authorize(Roles = "admin")]
     [HttpPut("{id}")]
     public async Task<ActionResult<CategoryDto>> PutAsync(CategoryDto entityDto) 
     {
@@ -144,7 +144,7 @@ public class CategoriesController : ControllerBase
         }
     }
 
-    [Authorize(Roles = "super")]
+    [Authorize(Roles = "admin")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteAsync(string id)
     {
