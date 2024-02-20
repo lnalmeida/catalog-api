@@ -9,6 +9,7 @@ using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers;
 
+[Authorize(AuthenticationSchemes = "Bearer")]
 [Route("[controller]")]
 [ApiController]
 
@@ -23,6 +24,20 @@ public class ProductsController : ControllerBase
         _unityOfWork = unityOfWork;
         _mapper = mapper;
     }
+    
+    [AllowAnonymous]
+    [HttpGet("fullProductList")]
+    public async Task<ActionResult<IEnumerable<Category>>> GetFullProductList()
+    {
+        try
+        {
+            return Ok(_unityOfWork.ProductRepository.GetFullProductList());
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred with your request. \nMessage: {ex.Message}");
+        }
+    } 
 
     [AllowAnonymous]
     [HttpGet]
@@ -59,7 +74,7 @@ public class ProductsController : ControllerBase
         
         
 
-    [Authorize(Roles = "admin")]
+    [AllowAnonymous]
     [HttpGet("{id}", Name ="GetProduct")]
     public async Task<ActionResult<ProductDto>> GetAsync(string id) 
     {

@@ -13,6 +13,11 @@ public class ProductRepository : Repository<Product>, IProductRepository
     {
         _context = context;
     }
+    
+    public async Task<IEnumerable<Product>> GetFullProductList()
+    {
+        return _context.Products.AsNoTracking();
+    }
 
     public async Task<PagedList<Product>> GetAll(PaginationParameters paginationParameters)
     {

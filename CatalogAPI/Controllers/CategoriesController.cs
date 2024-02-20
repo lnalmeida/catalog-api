@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using NuGet.Protocol;
 
 namespace CatalogAPI.Controllers;
-
+[Authorize(AuthenticationSchemes = "Bearer")]
 [Route("[controller]")]
 [ApiController]
 
@@ -22,6 +22,20 @@ public class CategoriesController : ControllerBase
         _unityOfWork = unityOfWork;
         _mapper = mapper;
     }
+
+    [AllowAnonymous]
+    [HttpGet("fullCategoryList")]
+    public async Task<ActionResult<IEnumerable<Category>>> GetFullCategoryList()
+    {
+        try
+        {
+            return Ok(_unityOfWork.CategoryRepository.GetFullCategoryList());
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred with your request. \nMessage: {ex.Message}");
+        }
+    } 
     
     [AllowAnonymous]
     [HttpGet]
@@ -78,7 +92,7 @@ public class CategoriesController : ControllerBase
 
     }
 
-    [Authorize(Roles = "admin, user")]
+    [AllowAnonymous]
     [HttpGet("{id}", Name ="GetCategory")]
     public async Task<ActionResult<Category>> GetByIdAsync(string id) 
     {

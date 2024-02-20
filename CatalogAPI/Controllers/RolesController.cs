@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Exception = System.Exception;
 
 namespace CatalogAPI.Controllers;
-
+[Authorize(AuthenticationSchemes = "Bearer")]
 [Route("api/auth/[controller]")]
 [ApiController]
 

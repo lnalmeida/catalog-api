@@ -14,13 +14,18 @@ public class CategoryRepository : Repository<Category>, ICategoryRepository
     {
         _context = context;
     }
+
+    public async Task<IEnumerable<Category>> GetFullCategoryList()
+    {
+        return _context.Categories.AsNoTracking();
+    }
     
     public async Task<PagedList<Category>> GetAll(PaginationParameters paginationParameters)
     {
         var allCategories =  _context.Categories.AsNoTracking();
         return await PagedList<Category>.ToPagedList(allCategories.OrderByDescending(on => on.CategoryName), paginationParameters.PageNumber, paginationParameters.PageSize);
     }
-    
+
     public async Task<IEnumerable<Category>> GetCategoryProducts(string categoryId)
     {
         var parsedCategoryId = Guid.Parse(categoryId);
